@@ -1,0 +1,2 @@
+-J-XX:+UseStringDeduplication
+-Dnetwork="Ropsten"
