@@ -1,8 +1,8 @@
 package cn.ethereum
 import cats.effect._
 import cats.implicits.toSemigroupKOps
-import cn.ethereum.routes.{Api, HealthCheck}
 import cn.ethereum.config.{Config, ServerConfig}
+import cn.ethereum.route.{Api, HealthCheck}
 import cn.ethereum.service.HttpsEthereumService
 import org.http4s.HttpRoutes
 import org.http4s.blaze.server.BlazeServerBuilder

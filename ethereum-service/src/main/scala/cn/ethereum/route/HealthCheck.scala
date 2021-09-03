@@ -1,4 +1,4 @@
-package cn.ethereum.routes
+package cn.ethereum.route
 
 import cats.effect.IO
 import io.circe.Json

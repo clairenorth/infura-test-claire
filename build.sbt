@@ -14,6 +14,7 @@ ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "cn"
 
+
 lazy val root = (project in file("."))
   .settings(settings)
   .aggregate(service, integrationTests, loadTests)
@@ -23,7 +24,6 @@ lazy val service = (project in file("ethereum-service"))
   .settings(settings)
   .settings(
     name := "ethereum-service",
-    javaOptions in Test += "-Dconfig.resource=application-test.conf",
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
       "org.http4s" %% "http4s-circe" % Http4sVersion,
@@ -47,7 +47,6 @@ lazy val service = (project in file("ethereum-service"))
     dockerExposedVolumes := Seq("/opt/docker/logs")
   )
   .settings(
-    // specifies Main class for compilation
     assemblySettings,
     Compile / mainClass := Some("cn.ethereum.Main"),
     logLevel := Level.Warn,
@@ -62,7 +61,8 @@ lazy val loadTests = (project in file("load-tests"))
   .settings(settings, assemblySettings)
   .enablePlugins(GatlingPlugin)
   .settings(libraryDependencies ++= Seq("io.gatling.highcharts" % "gatling-charts-highcharts" % GatlingVersion % "test,it",
-    "io.gatling" % "gatling-test-framework" % GatlingVersion % "test,it"))
+    "io.gatling" % "gatling-test-framework" % GatlingVersion % "test,it",
+    "io.gatling" % "gatling-core" % GatlingVersion))
 
 lazy val settings = Seq(
   scalacOptions ++=  Seq(

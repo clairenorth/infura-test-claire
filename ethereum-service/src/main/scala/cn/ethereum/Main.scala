@@ -8,6 +8,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext._
 // Entry point to application
 object Main extends IOApp {
+  // starts the server and passes an implicit execution context
   override def run(args: List[String]): IO[ExitCode] = {
     implicit val ec: ExecutionContext = Implicits.global
     implicit val logger = getLogger

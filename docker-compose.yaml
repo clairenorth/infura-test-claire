@@ -1,8 +1,0 @@
-version: '3'
-services:
-  ethereum-service:
-    container_name: ethereum-service
-    ports:
-      - 8080:8080
-    image:
-    environment:

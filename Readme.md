@@ -1,34 +1,81 @@
-# Ethereum Service
-Decentralized application that enables interaction with the Ethereum blockchain network(s) via Infura Infrastructure. Built using Scala.
+# Infura Infra Test
+author: Claire North
 
-## Architecture
-## Components
-Http4s - Web Framework <br>
-Web3j - Web3 SDK to build transactions to be sent <br>
-Infura - Web 3 Infrastructure Provider
+## Application Structure
+Built using SBT modules. <br>
+`/docs` - contain API documentation and Future Improvements if I were to make v 2.0. <br>
+sbt modules: <br>
+`/ethereum-service` - Decentralized application that enables interaction with the Ethereum blockchain network(s) via Infura Infrastructure. Built using Scala and HTTP4s framework. <br>
+`/load-tests` - Load Tests creating using the Gatling Framework and run locally. Includes test results. <br>
 
-## Running the dApp
-### Entire app
-`sbt run`
+## Ethereum Service
+### Code structure
+Modeled loosely off of DDD and onion architecture pattern.
+- `Main.scala` - entrypoint to the application. Start the server and runs indefinitely until the JVM is killed
+- `Server.scala` - methods to wire up server by loading configuration, binding http routes, creating [blaze](https://github.com/http4s/blaze) server as a resource. Has run method that is utilized by `Main`
+- `/route` - location of all HTTP related files or code executed at outermost layer during request lifecycle (before core application logic). Includes specific HTTP routes and health check. 
+- `/model` - location of domain models such as Error class.
+- `/config` - location of config files modeled as classes. [PureConfig](https://github.com/pureconfig/pureconfig) maps the `application.conf` files to classes under the hood.
+- `/service` - location of logic that interacts with Infura API. Actual API calls aren't executed here, but rather in the `/route` files. HTTP4s and IO type allows for easy decoupling of method creation and method execution.
 
-### Service alone
-` sbt project service/run`
+Getting Started
+Prerequisites:
+* Scala - v2.13.6
+* SBT - v1.5.5 - Build Tool
+* [Http4s](https://http4s.org/) - v0.22.2 - Web Framework <br>
+* Web3j - Web3 SDK to build transactions to be sent <br>
+* Infura - Web 3 Infrastructure Provider <br>
+* [Gatling](https://gatling.io/) - Load testing Framework <br>
 
-**Passing Environment Variables** <br>
-Can do it one of two ways:
+"API doc" - [link](docs/Api.md) <br>
+
+## Running
+## locally
+```
+cd ethereum-service
+sbt clean compile
+sbt run
+```
+
+### locally - singular module from root directory
+- options: service, loadTests
+```
+sbt project {module-Name}/run
+```
+Afterwards, service is accessible via `http://localhost:8080`.
+
+You can change the ethereum network the service will connect to 1 of two ways:
+1. ENV variables
+2. changing value in `application.conf` directory
+
+For ENV variables,
+Can set it one of two ways:
 1. Pass via command line arguments <br>
    ex: `-Dkey=val` will set params as JVM arguments
 2. Add them to `.sbtopts` file in the same format as passing via the command line
 
-## Docker
-This project utilizes [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/) to dockerize the application.
+### via Docker
+This project utilizes [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/) to Dockerize the application.
 
 To run this application using Docker: <br>
-Prereq: Have Docker Engine running in the background
-1. Run `sbt docker:publishLocal`. This will build project, package it, and build a Docker image on your local Docker server running. <br>
-   1. If you want to view sbt generated Dockerfile, `cat target/docker/stage/Dockerfile`
-2. Run `docker run --rm -p8080:8080 ethereum-service:{current-version-of-image}` Example: `docker run --rm -p8080:8080 ethereum-service:0.1.0-SNAPSHOT`.
-
+0. Have Docker Engine running in the background
+1. From the root directory, `sbt project service/Docker/publishLocal && docker run --rm -p 8080:8080 ethereum-service:0.1.0-SNAPSHOT`. <br>
+   This will build project, package it, create a Docker image for the service, then run the image in a container.  <br>
+   a. If you want to view sbt generated Dockerfile, `cat target/docker/stage/Dockerfile`
 
 ## Development
-`sbt ~reStart`
+This project uses sbt-revolver, a plugin for SBT enabling a super-fast development turnaround for Scala applications.
+It sports the following features:
+
+Starting and stopping your application in the background of your interactive SBT shell (in a forked JVM)
+Triggered restart: automatically restart your application as soon as some of its sources have been changed
+To run the app via the plugin:
+```
+sbt ~reStart
+```
+
+## Load Tests
+### Run from root directory
+```
+sbt project loadTests/Gatling/test
+```

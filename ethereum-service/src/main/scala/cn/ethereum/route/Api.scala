@@ -1,4 +1,4 @@
-package cn.ethereum.routes
+package cn.ethereum.route
 
 import cats.effect.{ContextShift, IO, Timer}
 import cn.ethereum.service.EthereumService
@@ -11,7 +11,7 @@ import _root_.io.circe.Json
 
 import cats.parse.Parser
 import cn.ethereum.model.{GeneralError, InvalidBlockParam}
-import cn.ethereum.routes.ApiUtils.{mapToDefaultBlockParam, present}
+import ApiUtils.mapToDefaultBlockParam
 import cn.ethereum.service.models.EthereumNetworkError
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.log4s.Logger
@@ -22,12 +22,13 @@ import org.web3j.protocol.core.methods.response.EthBlock.{Block, ResponseDeseria
 import java.math.BigInteger
 import scala.util.Try
 
+// HTTP routes for the application. Modeled like functions.
 object Api extends Http4sDsl[IO] {
   def routes(service: EthereumService)(implicit cs: ContextShift[IO],
                                        timer: Timer[IO],
                                        logger: Logger): HttpRoutes[IO] = {
     HttpRoutes.of[IO] {
-      case GET -> Root / "getBlockByNumber" / blockParameter / showTransactionDetails => {
+      case GET -> Root / "blockByNumber" / blockParameter / showTransactionDetails => {
         for {
           block <- mapToDefaultBlockParam(blockParameter)
           result <- service.getBlockByNumber(
@@ -39,11 +40,11 @@ object Api extends Http4sDsl[IO] {
       }.handleErrorWith {
         case invalid: InvalidBlockParam =>
           BadRequest(invalid.msg)
-        case e: GeneralError =>
-          BadGateway(e.getMessage)
+        case general: GeneralError =>
+          BadGateway(general.getMessage)
       }
 
-      case GET -> Root / "getTransactionByBlockNumberAndIndex" / blockParameter / transactionIndexPosition => {
+      case GET -> Root / "transactionByBlockNumberAndIndex" / blockParameter / transactionIndexPosition => {
         for {
           block <- mapToDefaultBlockParam(blockParameter)
           result <- service.getTransactionByBlockNumberAndIndex(
@@ -70,15 +71,10 @@ object Api extends Http4sDsl[IO] {
 
 object ApiUtils {
 
-  val mapToDefaultBlockParam =
+  val mapToDefaultBlockParam: String => IO[DefaultBlockParameter] =
     (blockParam: String) =>
       for {
-        result <- IO(DefaultBlockParameter.valueOf(blockParam)).attempt
-          .flatMap { x =>
-            x match {
-              case Left(e)      => IO(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockParam.toLong)))
-              case Right(value) => IO.pure(value)
-            }
-          }
+        result <- IO(DefaultBlockParameter.valueOf(blockParam))
+          .flatMap(IO.pure).handleErrorWith(e => IO(DefaultBlockParameter.valueOf(new BigInteger(blockParam,16))))
       } yield result
 }
