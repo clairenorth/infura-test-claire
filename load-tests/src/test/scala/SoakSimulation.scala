@@ -6,9 +6,12 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 import scala.util.Random
 
+// Throughput based test
+// Same scenario for each method
+// Comparing the two methods in terms of performance when throwing modest load
 // Note: No response caching will hurt performance (future improvement)
 
-class ThroughputBaselineSimulation extends Simulation {
+class SoakSimulation extends Simulation {
 
   val context: LoggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
   context.getLogger("io.gatling.http").setLevel(Level.valueOf("INFO"))
@@ -35,7 +38,7 @@ class ThroughputBaselineSimulation extends Simulation {
 
   val scn1 =
     scenario("blockByNumber")
-      .repeat(2) {
+      .repeat(5) {
         feed(feeder) // A scenario is a chain of requests and pauses
           .exec(http("blockByNumber")
             .get("/blockByNumber/${blockParameter}/false"))
@@ -44,18 +47,17 @@ class ThroughputBaselineSimulation extends Simulation {
 
 
 
-  val scn2 = scenario("transactionByBlockNumberAndIndex") // A scenario is a chain of requests and pauses
-    .repeat(2) {
+  val scn2 =
+    scenario("transactionByBlockNumberAndIndex") // A scenario is a chain of requests and pauses
+    .repeat(5) {
       feed(feeder)
         .exec(http("transactionByBlockNumberAndIndex")
           .get("/transactionByBlockNumberAndIndex/${blockParameter}/${transactionIndexPosition}"))
         .pause(2000.milliseconds)
     }
 
-
-  setUp(scn1.inject(rampUsers(250) during(30 seconds))
-    .throttle(reachRps(500) in (1 minutes))
-    .protocols(httpProtocol).andThen(scn2.inject(constantUsersPerSec(250) during(30 seconds))
-    .throttle(reachRps(500) in (1 minutes)).protocols(httpProtocol)))
+  // 20 users per second for 60*5 = 300 seconds 20 * 300 = 6000 users overall each executing 5 requests - 30,000 overall
+  setUp(scn1.inject(constantUsersPerSec(20) during 5.minutes)
+    .protocols(httpProtocol).andThen(scn2.inject(constantUsersPerSec(20) during 5.minutes).protocols(httpProtocol)))
 }
 

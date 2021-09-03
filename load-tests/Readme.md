@@ -8,6 +8,9 @@ Sbt - version 1.5.5  <br>
 # Additional
 [Ethscan](git@github.com:shazow/ethspam.git) - to gather sample Json-RPC requests. <br>
 
+# Results
+Found in [docs](docs/Results.md).
+
 # How to run
 You’ll be able to run Gatling simulations using the prefix "gatling" + ":" + SBT standard test, testOnly, testQuick, etc… tasks from root directory.
 ex) `sbt project loadTests/Gatling/test`

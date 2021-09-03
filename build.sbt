@@ -82,5 +82,4 @@ lazy val settings = Seq(
     Resolver.sonatypeRepo("snapshots")
   )
 )
-
-
+exportJars := true
