@@ -53,6 +53,7 @@ class ThroughputBaselineSimulation extends Simulation {
     }
 
 
+  // 1 user - 2 requests. 250 * 2 = 500 RPS
   setUp(scn1.inject(rampUsers(250) during(30 seconds))
     .throttle(reachRps(500) in (1 minutes))
     .protocols(httpProtocol).andThen(scn2.inject(constantUsersPerSec(250) during(30 seconds))

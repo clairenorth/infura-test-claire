@@ -1,6 +1,6 @@
 import Dependencies._
 import sbt.Keys.{libraryDependencies, logLevel}
-import sbt.Level
+import sbt.{Level, ThisBuild}
 import sbtassembly.AssemblyPlugin.assemblySettings
 val Http4sVersion = "0.22.2"
 val CatsEffectVersion = "2.3.3"
@@ -17,7 +17,7 @@ ThisBuild / organization := "cn"
 
 lazy val root = (project in file("."))
   .settings(settings)
-  .aggregate(service, integrationTests, loadTests)
+  .aggregate(service, loadTests)
 
 lazy val service = (project in file("ethereum-service"))
   .enablePlugins(JavaAppPackaging, DockerPlugin)
@@ -50,12 +50,7 @@ lazy val service = (project in file("ethereum-service"))
     assemblySettings,
     Compile / mainClass := Some("cn.ethereum.Main"),
     logLevel := Level.Warn,
-    // to create a jar of the project, run sbt clean assembly
-    assembly / assemblyJarName := "ethereum-service.jar"
   )
-
-lazy val integrationTests = (project in file("integration-tests"))
-  .settings(settings, assemblySettings)
 
 lazy val loadTests = (project in file("load-tests"))
   .settings(settings, assemblySettings)

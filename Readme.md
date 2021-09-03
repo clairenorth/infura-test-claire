@@ -35,7 +35,7 @@ Built using:
 ## Running
 This project utilizes [sbt-native-packager](http://www.scala-sbt.org/sbt-native-packager/) to Dockerize the application.
 
-To run this application using Docker: <br>
+To run this application using Docker for the first time: <br>
 From the root directory, `sbt project service/Docker/publishLocal && docker run --rm -p 8080:8080 ethereum-service:0.1.0-SNAPSHOT`. <br>
    This will build project, package it, create a Docker image for the service, then run the image in a container.  <br>
    a. If you want to view sbt generated Dockerfile, `cat target/docker/stage/Dockerfile`

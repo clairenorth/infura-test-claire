@@ -23,10 +23,11 @@ Future improvements:
 ### Test Scenario 1: Performance comparison / Stress Test
 Run same test scenario (same # of users and expected RPS) against both eth methods to compare how they perform 1:1 under stress. Lots of users, the small amount of time. Instead of injecting users all at once, going to inject high amount of users over a short period of time (1 minute) to still have a stress test scenario, but within bounds of processor limitations.
 
-Test Duration: 60 seconds
-- 1 virtual user => executes 5 requests.
-- 1000 VU overall * 5 requests = 5,000 requests overall / 60 seconds = 84 RPS approx
-- Expected load: 84 RPS
+Test Duration: 90 seconds
+- 1 virtual user => executes 2 requests.
+- 250 VU overall * 2 requests = 500 requests in total
+- Target: 500 RPS over 1 minute. 
+- Throttling tries to ensure a targeted throughput with the given scenario and its injection profile (number of users and duration). It’s a bottleneck, ie an upper limit.
 
 ### Test Scenario 2: Performance comparison / Soak Test
 Run same test scenario against both eth methods to compare how they perform 1:1 over a longer period of time with slower ramp up in traffic.
@@ -47,10 +48,10 @@ Thing to consider:
 ![Global Resp T](scn1iteration1/globalRespT.png)
 
 
-| Method                           | iteration # | changes from last test | expected RPS | Peak RPS | Total Requests | Response Time | Response metrics                                                 |
+| Method                           | iteration # | changes from last test | expected RPS | actual RPS on average | Total Requests | Response Time | Response metrics                                                 |
 |----------------------------------|-------------|------------------------|--------------|----------|----------------|---------------|------------------------------------------------------------------|
-| blockByNumber                    | 1           | N/a                    | 84 RPS       | 83 RPS   | 500 R          | see img       | T < 800 ms: 43% requests 1200 < T < 800 ms: 4% T > 1200 ms : 53% |
-| transactionByBlockNumberAndIndex | 1           | N/a                    | 84 RPS       | 83 RPS   | 500 R          | see img       | T < 800 ms: 10% requests 1200 < T < 800 ms: 5% T > 1200 ms : 85% |
+| blockByNumber                    | 1           | N/a                    | 8.3 RPS       | 18.5 RPS   | 500 R          | see img       | T < 800 ms: 43% requests 1200 < T < 800 ms: 4% T > 1200 ms : 53% |
+| transactionByBlockNumberAndIndex | 1           | N/a                    | 8.3 RPS       | 18.5 RPS   | 500 R          | see img       | T < 800 ms: 10% requests 1200 < T < 800 ms: 5% T > 1200 ms : 85% |
 
 ![Response Times Block By Number](scn1iteration1/blockbynum.png)
 ![Response Times Transaction By Block and Index](scn1iteration1/transactionBBN.png)
@@ -59,8 +60,8 @@ Analysis:
 - Both endpoints had similar average overall response times (2749 ms vs. 2886 ms). 
 - Both endpoints were able to hit the expected throughput with no KO errors (with a quick note that the throughput is lower than realistic traffic)
 - transactionByBlockNumberAndIndex had better tail end latency. 
-- p95 or 95% percent of requests against transactionByBlockNumberAndIndex processed in 5679 ms compared to 7878 ms for blockByIndex
-- Service itself can handle modest load (84 RPS) 
+- p95 or 95% percent of requests against transactionByBlockNumberAndIndex processed slightly faster although nothing conclusive in 5679 ms compared to 7878 ms for blockByIndex
+- Service itself can handle modest load (500 RPM) with 100% success rate
 - Not enough data to draw meaningful conclusions though. Would want to run a plethora of iterations in order to make a meaningful conclusion.
 - Faced rate limiting:
   - 15:55:10.574 [pool-8-thread-653] DEBUG org.web3j.protocol.http.HttpService - {"jsonrpc":"2.0","id":69161,"error":{"code":-32005,"message":"daily request count exceeded, request rate limited","data":{"rate":{"allowed_rps":1,"backoff_seconds":30,"current_rps":105.66666666666667},"see":"https://infura.io/dashboard"}}}

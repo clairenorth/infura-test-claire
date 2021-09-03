@@ -51,13 +51,7 @@ object Api extends Http4sDsl[IO] {
             block,
             org.web3j.utils.Numeric.toBigInt(transactionIndexPosition)
           )
-          json = result.map(_.getRawResponse).asJson
-          resp <- if (json.findAllByKey("error").nonEmpty) {
-                  val msg = json.hcursor.downField("error").downField("message").top
-                  BadGateway(msg.getOrElse(Json.Null))
-                } else {
-                  Ok(json)
-                }
+          resp <- Ok(result.map(_.getRawResponse).asJson)
         } yield resp
       }.handleErrorWith {
         case invalid: InvalidBlockParam =>
