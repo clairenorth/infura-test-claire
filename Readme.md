@@ -1,4 +1,4 @@
-# Infura Infra Test
+# Infura API Load Testing Service 
 author: Claire North
 
 ## Application Structure
