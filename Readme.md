@@ -1,4 +1,4 @@
-# Infura API Load Testing Service 
+# Web 3 Load Testing Service using Infura APIs
 author: Claire North
 
 ## Application Structure
